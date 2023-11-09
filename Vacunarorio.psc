@@ -1,9 +1,5 @@
 Algoritmo Vacunas
 	
-	Definir totalPacientes Como Entero
-	totalPacientes=1
-
-	
 	Definir nombres Como Cadena
 	Definir edades Como Entero
 	Definir dni Como Cadena
@@ -41,6 +37,11 @@ Algoritmo Vacunas
 	// array bidimensional
 	Definir agendaVacunatorio Como Entero
 	Dimension agendaVacunatorio[5,8]
+	Para dia = 1 Hasta 5 Hacer
+		Para hora = 1 Hasta 8 Hacer
+			agendaVacunatorio[dia, hora] = 0
+		FinPara
+	FinPara
 	
 	definir vacunasPreCargadas Como Caracter
 	Dimension vacunasPreCargadas[6]
@@ -62,10 +63,14 @@ Algoritmo Vacunas
 		stockVacunas[i] = 10
 	FinPara
 	
+	Definir totalPacientes Como Entero
+	totalPacientes = 1
+	
 	Definir opciones Como Entero
 	
 	Repetir
-        Escribir "Bienvenido al Sistema de Vacunación"
+        Escribir "//////Bienvenido al Sistema de Vacunación//////"
+		Escribir " "
         Escribir "Menú de Opciones:"
         Escribir "1. Reservar turno"
         Escribir "2. Buscar paciente"
@@ -82,7 +87,7 @@ Algoritmo Vacunas
 		
 		Segun opciones Hacer
             Caso 1:
-                ReservarTurno(nombres, edades, dni, fechasNacimiento, vacuna, fechasTurno,totalPacientes, vacunasPreCargadas, stockVacunas)
+                ReservarTurno(nombres, edades, dni, fechasNacimiento, vacuna, fechasTurno, totalPacientes ,vacunasPreCargadas, stockVacunas, diasSemana, horarios, agendaVacunatorio)
             Caso 2:
                 BuscarPacientePorDNI(nombres, edades, dni, fechasNacimiento, vacuna, fechasTurno, totalPacientes)
             Caso 3:
@@ -137,7 +142,7 @@ Algoritmo Vacunas
 
 FinAlgoritmo
 
-Subproceso ReservarTurno(nombres, edades, dni, fechasNacimiento, vacuna, fechasTurno, totalPacientes, vacunasPreCargadas, stockVacunas)
+Subproceso ReservarTurno(nombres, edades, dni, fechasNacimiento, vacuna, fechasTurno, totalPacientes por referencia, vacunasPreCargadas, stockVacunas, diasSemana, horarios, agendaVacunatorio)
     Escribir "Reservar turno"
 	
     Escribir "Nombre del paciente: "
@@ -167,6 +172,20 @@ Subproceso ReservarTurno(nombres, edades, dni, fechasNacimiento, vacuna, fechasT
 		Escribir "Ingrese una fecha válida formato DD/MM/AAAA"
 		Leer fechasNacimiento[totalPacientes]
 	FinMientras
+	
+	Definir opcionDia Como Entero
+	definir opcionHora Como Entero
+	
+	Escribir "Ingrese un dia para el turno: "
+	Para i=1 Hasta 5 Hacer
+		Escribir i,". " diasSemana[i]
+	FinPara
+	Leer opciondia
+	Escribir "Horarios disponibles para el día ",diasSemana[opciondia]
+	Para i=1 Hasta 8 Hacer
+		Escribir i, ". ", horarios[i]
+	FinPara
+	Leer opcionhora
     
     //vacunas disponibles
     Escribir "Vacunas disponibles:"
@@ -188,28 +207,27 @@ Subproceso ReservarTurno(nombres, edades, dni, fechasNacimiento, vacuna, fechasT
         stockVacunas[opcionVacuna] = stockVacunas[opcionVacuna] - 1
         
         vacuna[totalPacientes] = vacunasPreCargadas[opcionVacuna]
-        Escribir "Fecha del turno: "
-        Leer fechasTurno[totalPacientes]
-		Escribir "total pacientes ",totalPacientes
+		
         totalPacientes = totalPacientes + 1
-		Escribir "total pacientes ",totalPacientes
-        Escribir "¡Turno reservado exitosamente!"
+		
+        Escribir "¡Turno reservado!"
+		Escribir " "
     Sino
         Escribir "No hay stock disponible para la vacuna seleccionada."
     FinSi
 FinSubproceso
 
-Subproceso BuscarPacientePorDNI(nombres, edades, dni, fechasNacimiento, vacuna, fechasTurno, totalPacientes)
+Subproceso BuscarPacientePorDNI(nombres, edades, dni, fechasNacimiento, vacuna, fechasTurno, totalPacientes Por Referencia)
     Definir dniBuscado Como Cadena
     Definir encontrado Como Logico
     encontrado = Falso
-	Escribir "total pacientes ",totalPacientes
+	
     Escribir "Ingrese el DNI del paciente que desea buscar: "
     Leer dniBuscado
 	
     Definir i Como Entero
     i = 1
-    Escribir "total pacientes ",totalPacientes
+    
     Mientras i < totalPacientes Y encontrado = Falso Hacer
         Si dni[i] = dniBuscado Entonces
             encontrado <- Verdadero
