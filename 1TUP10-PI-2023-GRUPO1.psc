@@ -34,9 +34,10 @@ Algoritmo Vacunas
 	horarios[7] = "11:00"
 	horarios[8] = "11:30"
 	
-	// array bidimensional
+	// matriz bidimensional
 	Definir agendaVacunatorio Como Entero
 	Dimension agendaVacunatorio[5,8]
+	
 	Para dia = 1 Hasta 5 Hacer
 		Para hora = 1 Hasta 8 Hacer
 			agendaVacunatorio[dia, hora] = 0
@@ -46,7 +47,7 @@ Algoritmo Vacunas
 	definir vacunasPreCargadas Como Caracter
 	Dimension vacunasPreCargadas[6]
 	
-	//  vacunas precargadas
+	// vacunas precargadas
 	vacunasPreCargadas[1] = "Neumococo conjugada"
 	vacunasPreCargadas[2] = "Poliomielitis (IPV o Salk)"
 	vacunasPreCargadas[3] = "Quíntuple (o pentavalente)"
@@ -54,11 +55,11 @@ Algoritmo Vacunas
 	vacunasPreCargadas[5] = "Meningococo"
 	vacunasPreCargadas[6] = "Triple Viral"
 	
-	// stock de vacunas
+	//stock de vacunas
 	Definir stockVacunas Como Entero
 	Dimension stockVacunas[6]
 	
-	// 10 unidades de cada vacuna
+	//10 unidades de cada vacuna
 	Para i = 1 Hasta 6 Hacer
 		stockVacunas[i] = 10
 	FinPara
@@ -89,7 +90,7 @@ Algoritmo Vacunas
             Caso 1:
                 ReservarTurno(nombres, edades, dni, fechasNacimiento, vacuna, fechasTurno, totalPacientes ,vacunasPreCargadas, stockVacunas, diasSemana, horarios, agendaVacunatorio)
             Caso 2:
-                BuscarPacientePorDNI(nombres, edades, dni, fechasNacimiento, vacuna, fechasTurno, totalPacientes)
+                BuscarPacientePorDNI(nombres, edades, dni, fechasNacimiento, vacuna, fechasTurno, totalPacientes, diasSemana, horarios)
             Caso 3:
                 MostrarAgendaVacunatorio(diasSemana, horarios, agendaVacunatorio)
             Caso 4:
@@ -176,16 +177,31 @@ Subproceso ReservarTurno(nombres, edades, dni, fechasNacimiento, vacuna, fechasT
 	Definir opcionDia Como Entero
 	definir opcionHora Como Entero
 	
-	Escribir "Ingrese un dia para el turno: "
-	Para i=1 Hasta 5 Hacer
-		Escribir i,". " diasSemana[i]
-	FinPara
-	Leer opciondia
-	Escribir "Horarios disponibles para el día ",diasSemana[opciondia]
-	Para i=1 Hasta 8 Hacer
-		Escribir i, ". ", horarios[i]
-	FinPara
-	Leer opcionhora
+	Escribir "Ingrese un día para el turno: "
+    Para i = 1 Hasta 5 Hacer
+        Escribir i, ". ", diasSemana[i]
+    FinPara
+    Leer opcionDia
+    Escribir "Horarios disponibles para el día ", diasSemana[opcionDia]
+    
+    Para i = 1 Hasta 8 Hacer
+        Si agendaVacunatorio[opcionDia, i] = 0 Entonces
+            Escribir i, ". ", horarios[i]
+        Sino
+            Escribir i, ". Ocupado"
+        FinSi
+    FinPara
+    
+    Leer opcionHora
+    
+    // Verificar si está ocupado
+    Si agendaVacunatorio[opcionDia, opcionHora] = 1 Entonces
+        Escribir "El horario seleccionado está ocupado. Por favor, elija otro horario."
+    Sino
+        // Marcar como ocupado
+        agendaVacunatorio[opcionDia, opcionHora] = 1
+	FinSi
+	
     
     //vacunas disponibles
     Escribir "Vacunas disponibles:"
@@ -201,7 +217,7 @@ Subproceso ReservarTurno(nombres, edades, dni, fechasNacimiento, vacuna, fechasT
         Leer opcionVacuna
     FinMientras
     
-    // Verificar si hay stock disponible para la vacuna seleccionada
+    // Verifica si hay stock disponible
     Si stockVacunas[opcionVacuna] > 0 Entonces
         // Restar una vacuna
         stockVacunas[opcionVacuna] = stockVacunas[opcionVacuna] - 1
@@ -217,7 +233,7 @@ Subproceso ReservarTurno(nombres, edades, dni, fechasNacimiento, vacuna, fechasT
     FinSi
 FinSubproceso
 
-Subproceso BuscarPacientePorDNI(nombres, edades, dni, fechasNacimiento, vacuna, fechasTurno, totalPacientes Por Referencia)
+Subproceso BuscarPacientePorDNI(nombres, edades, dni, fechasNacimiento, vacuna, fechasTurno, totalPacientes Por Referencia, diasSemana, horarios)
     Definir dniBuscado Como Cadena
     Definir encontrado Como Logico
     encontrado = Falso
@@ -236,7 +252,7 @@ Subproceso BuscarPacientePorDNI(nombres, edades, dni, fechasNacimiento, vacuna, 
             Escribir "DNI: ", dni[i]
             Escribir "Fecha de Nacimiento: ", fechasNacimiento[i]
             Escribir "Vacuna: ", vacuna[i]
-            Escribir "Fecha de Turno: ", fechasTurno[i]
+            Escribir "Fecha de Turno: ", horarios[i], "hs del día "// diasSemana[i]
         Sino
             i = i + 1
         FinSi
@@ -245,100 +261,111 @@ Subproceso BuscarPacientePorDNI(nombres, edades, dni, fechasNacimiento, vacuna, 
     Si encontrado = Falso Entonces
         Escribir "No hay registros del paciente con DNI ", dniBuscado
     FinSi
+	Escribir ""
 FinSubproceso
 
 Subproceso OrdenarYMostrarPacientesPorEdad(nombres, edades, totalPacientes)
-    Para i = 1 Hasta totalPacientes - 1 Hacer
-        Para j = 1 Hasta totalPacientes - i Hacer
-            Si edades[j] > edades[j + 1] Entonces
-                // Intercambiar edades
-                Definir aux1 Como Entero
-                aux1 = edades[j]
-                edades[j] = edades[j + 1]
-                edades[j + 1] = aux1
-                
-                
-                Definir aux2 Como Cadena
-                aux2 = nombres[j]
-                nombres[j] = nombres[j + 1]
-                nombres[j + 1] = aux2
+    Para i = 1 Hasta totalPacientes - 2 Hacer 
+        pos_menor = i
+        Para j = i + 1 Hasta totalPacientes - 1 Hacer
+            Si edades[j] < edades[pos_menor] Entonces
+                pos_menor = j
             FinSi
         FinPara
+		
+        // Intercambiar edades
+        aux1 = edades[i]
+        edades[i] = edades[pos_menor]
+        edades[pos_menor] = aux1
+		
+        aux2 = nombres[i]
+        nombres[i] = nombres[pos_menor]
+        nombres[pos_menor] = aux2
     FinPara
 	
+	
     // pacientes ordenada por edad
-    Para i = 1 Hasta totalPacientes Hacer
+    Para i = 1 Hasta totalPacientes -1 Hacer
         Escribir "Nombre: ", nombres[i]
         Escribir "Edad: ", edades[i]
     FinPara
+	Escribir ""
 FinSubproceso
 
 Subproceso MostrarAgendaVacunatorio(diasSemana, horarios, agendaVacunatorio)
     Escribir "Agenda del Vacunatorio:"
-    definir i Como Entero
-    Para i = 1 Hasta 5 Con Paso 1 Hacer
-        Escribir "Turnos disponibles para el día ", diasSemana[i], ":"
-        
+    Definir i, j Como Entero
+	
+    Escribir "Días y Horarios disponibles"
+	
+    // horarios disponibles y ocupados
+    Para i = 1 Hasta 5 Hacer
+        Escribir diasSemana[i], ""
         Para j = 1 Hasta 8 Hacer
             Si agendaVacunatorio[i, j] = 0 Entonces
-                Escribir i, ".", j, ". ", horarios[j]
+                Escribir horarios[j], " (Disponible) "Sin Saltar
+            Sino
+                Escribir horarios[j], " (Ocupado) "Sin Saltar
             FinSi
         FinPara
+		Escribir ""
     FinPara
+	Escribir ""
 FinSubproceso
 
 Subproceso OrdenarYMostrarPacientesPorVacuna(nombres, edades, vacuna, totalPacientes)
     // pacientes por vacuna
-    Para i = 1 Hasta totalPacientes - 1 Hacer
-        Para j = 1 Hasta totalPacientes - i Hacer
-            Si vacuna[j] > vacuna[j + 1] Entonces
-                
-                Definir auxVacuna Como Cadena
-                auxVacuna = vacuna[j]
-                vacuna[j] = vacuna[j + 1]
-                vacuna[j + 1] = auxVacuna
-                
-                
-                Definir auxNombre Como Cadena
-                auxNombre = nombres[j]
-                nombres[j] = nombres[j + 1]
-                nombres[j + 1] = auxNombre
-                
-                
-                Definir auxEdad Como Entero
-                auxEdad = edades[j]
-                edades[j] = edades[j + 1]
-                edades[j + 1] = auxEdad
+    Para i = 1 Hasta totalPacientes - 2 Hacer
+        pos_menor = i
+        Para j = i+1 Hasta totalPacientes - 1 Hacer
+            Si vacuna[j] < vacuna[pos_menor] Entonces
+                pos_menor = j
             FinSi
         FinPara
+		
+		
+        auxVacuna = vacuna[i]
+        vacuna[i] = vacuna[pos_menor]
+        vacuna[pos_menor] = auxVacuna
+		
+		
+        auxNombre = nombres[i]
+        nombres[i] = nombres[pos_menor]
+        nombres[pos_menor] = auxNombre
+		
+		
+        auxEdad = edades[i]
+        edades[i] = edades[pos_menor]
+        edades[pos_menor] = auxEdad
     FinPara
 	
-	// pacientes ordenados por vacuna
-    Para i = 1 Hasta totalPacientes Hacer
+    // pacientes ordenados por vacuna
+    Para i = 1 Hasta totalPacientes -1 Hacer
         Escribir "Nombre: ", nombres[i]
         Escribir "Edad: ", edades[i]
         Escribir "Vacuna: ", vacuna[i]
-        
+		
     FinPara
+	Escribir ""
 FinSubproceso
 
-Subproceso ContarTurnosPorDia(agenda)
+Subproceso ContarTurnosPorDia(agendaVacunatorio)
     // turnos otorgados por día
-    Definir turnosPorDia Como Entero
-	dimension turnosPorDia[5]// Suponiendo 5 días de la semana
+	Definir contadorTurno Como Entero
 	
-    // turnos por día a cero
-    Para i = 1 Hasta 5 Hacer
-        turnosPorDia[i] = 0
-    FinPara
-	
-    // cuenta los turnos por día
-    Para i = 1 Hasta 5 Hacer
-        Para j = 1 Hasta 8 Hacer
-            turnosPorDia[i] = turnosPorDia[i] + agenda[i, j]
-			Escribir "Día ", i, ", Hora ", j, ": "
-        FinPara
-    FinPara
+    Para i=1 Hasta 5 Hacer
+		contadorTurno=0
+		Para j=1 Hasta 8 Hacer
+			si agendaVacunatorio[i,j]=1 Entonces
+				
+				contadorTurno=contadorTurno+1
+				
+			FinSi
+			
+		FinPara
+		Escribir "El día ", i, " se otorgaron ", contadorTurno, " turnos"
+	FinPara
+	Escribir " "
 FinSubproceso
 
 Subproceso ContarVacunasAplicadasYBuscarIndiceVacuna(nombres, vacuna, totalPacientes, vacunasPreCargadas)
@@ -352,11 +379,10 @@ Subproceso ContarVacunasAplicadasYBuscarIndiceVacuna(nombres, vacuna, totalPacie
     FinPara
     
     Para i = 1 Hasta totalPacientes Hacer
-        Definir tipoVacuna Como Cadena
+        
         tipoVacuna = vacuna[i]
         
         // Encontrar el índice de la vacuna
-        Definir indiceVacuna Como Entero
         indiceVacuna = 0 
         
         Para j = 1 Hasta 6 Hacer
@@ -368,14 +394,14 @@ Subproceso ContarVacunasAplicadasYBuscarIndiceVacuna(nombres, vacuna, totalPacie
         Si indiceVacuna > 0 Entonces
             // actualiza la cantidad de vacunas
             cantidadVacunas[indiceVacuna] = cantidadVacunas[indiceVacuna] + 1
-        Sino
-            Escribir "La vacuna ", tipoVacuna, " no se encontró en el arreglo de vacunasPrecargadas."
         FinSi
+		
     FinPara
     
-    // Mostrar la cantidad de vacunas aplicadas por tipo
+    // cantidad de vacunas aplicadas por tipo
     Para i = 1 Hasta 6 Hacer
         Escribir "Vacuna: ", vacunasPreCargadas[i]
         Escribir "Cantidad de vacunas aplicadas: ", cantidadVacunas[i]
     FinPara
+	Escribir ""
 FinSubproceso
